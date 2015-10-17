@@ -3,6 +3,7 @@
  */
 const config = require('config'),
       crypto = require('crypto'),
+      http = require('request-promise'),
       Q = require('q');
 
 var crud = ['create', 'read', 'update', 'delete'];
@@ -13,7 +14,11 @@ var roles = {
   },
   borrower: {
     permissions: [
-      {resource: "items", operations: ['read']}
+        {resource: "items", operations: ['read']},
+        {resource: "borrowers", operations: ['read'],
+         check: function(user, action) {
+             return true;
+         }}
     ]
   },
   clerk: {
@@ -41,6 +46,17 @@ var roles = {
   }
 };
 
+var UNKNOWN_USER = {
+    authenticated: false,
+    reason: 'UNKNOWN_USER'
+};
+
+var INCORRECT_PASSWORD = {
+    authenticated: false,
+    reason: 'INCORRECT_PASSWORD'
+};
+
+
 module.exports = function (db) {
 
   function hash(s) {
@@ -49,6 +65,46 @@ module.exports = function (db) {
 
   function saltedHash(s) {
     return hash(config.auth.salt + s);
+  }
+
+    function authenticateSycamore(login) {
+        var options = {
+            method: 'POST',
+            uri: 'http://app.sycamoreeducation.com/index.php',
+            form: {
+                'entered_schid' : '2132',
+                'entered_login': login.username,
+                'entered_password': login.password
+            },
+            headers: {
+            }
+        };
+        return http(options)
+            .then(function (body) {
+                return body.indexOf('Username / Password Incorrect') == -1;
+            })
+            .catch(function (err) {
+                return false;
+            });
+    }
+
+  function createAuthentication(user) {
+      var permissions = [];
+      user.roles.split(',').forEach(function (roleName) {
+          var role = roles[roleName];
+          if (role) {
+              permissions = permissions.concat(role.permissions);
+          }
+      });
+      return {
+          authenticated: true,
+          user: {
+              username: user.username,
+              roles: user.roles,
+              permissions: permissions,
+              borrowernumber: user.borrowernumber
+          }
+      };
   }
 
   /**
@@ -61,32 +117,31 @@ module.exports = function (db) {
                         login.username, true)
       .then(function (user) {
         if (!user) {
-          return {
-            authenticated: false,
-            reason: 'UNKNOWN_USER'
-          };
+            return db.selectRow(
+                'select * from borrowers where sycamore_id = ?',
+                login.username, true)
+                .then(function (borrower) {
+                    if (!borrower) {
+                        return UNKNOWN_USER;
+                    }
+                    return authenticateSycamore(login)
+                        .then(function(result) {
+                            if (result) {
+                                return createAuthentication({
+                                    username: borrower.sycamore_id,
+                                    roles: 'borrower',
+                                    borrowernumber: borrower.borrowernumber
+                                });
+                            } else {
+                                return INCORRECT_PASSWORD;
+                            }
+                        });
+                });
         }
         if (saltedHash(login.password) !== user.hashed_password) {
-          return {
-            authenticated: false,
-            reason: 'INCORRECT_PASSWORD'
-          };
+            return INCORRECT_PASSWORD;
         }
-        var permissions = [];
-        user.roles.split(',').forEach(function (roleName) {
-          var role = roles[roleName];
-          if (role) {
-            permissions = permissions.concat(role.permissions);
-          }
-        });
-        return {
-          authenticated: true,
-          user: {
-            username: user.username,
-            roles: user.roles,
-            permissions: permissions
-          }
-        };
+        return createAuthentication(user);
       });
   }
 
