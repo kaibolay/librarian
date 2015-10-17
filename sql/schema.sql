@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `borrowers`;
 CREATE TABLE `borrowers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `borrowernumber` int(11) NOT NULL,
-  `cardnumber` varchar(16) NOT NULL,
+  `sycamore_id` varchar(100),
   `surname` text NOT NULL,
   `firstname` text,
   `streetaddress` text,
@@ -15,7 +15,7 @@ CREATE TABLE `borrowers` (
   `debarred` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `borrowernumber` (`borrowernumber`),
-  UNIQUE KEY `cardnumber` (`cardnumber`),
+  UNIQUE KEY `sycamore_id` (`sycamore_id`),
   KEY `borrowernumber_2` (`borrowernumber`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
