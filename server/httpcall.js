@@ -75,13 +75,13 @@ module.exports = function(server, api_prefix) {
   /**
    * Returns true if the action is authorized by the permissions.
    */
-  function authorized(permissions, action) {
-    for (var i = 0; i < permissions.length; ++i) {
-      var permission = permissions[i];
+  function authorized(user, action) {
+    for (var i = 0; i < user.permissions.length; ++i) {
+      var permission = user.permissions[i];
       if (action.resource === permission.resource
 	  && permission.operations.indexOf(action.operation) >= 0) {
-	return true;
-      }      
+          return !permission.check || permission.check(user, action);
+      }
     }
     return false;
   };
@@ -89,7 +89,7 @@ module.exports = function(server, api_prefix) {
   HttpCall.prototype.isAuthorized = function (action) {
     var self = this;
     var user = self.req.session.user;
-    var result = user && user.permissions && authorized(user.permissions, action);
+    var result = user && user.permissions && authorized(user, action);
     if (!result) {
       console.log('authorization failed: user=', user, ', action=', action);
     }
