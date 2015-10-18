@@ -44,7 +44,7 @@ module.exports = function(server, api_prefix) {
       flags[names[i]] = true;
     }
     return flags;    
-  }
+  };
 
   /**
    * Returns the offset and limit request parameters as an object.
@@ -55,7 +55,7 @@ module.exports = function(server, api_prefix) {
       limit: this.param('limit', Number, 100),
       returnCount: this.param('returnCount')
     };
-  }
+  };
 
   /**
    * Translates the result of a service promise to an HTTP response.
@@ -75,21 +75,27 @@ module.exports = function(server, api_prefix) {
   /**
    * Returns true if the action is authorized by the permissions.
    */
-  function authorized(user, action) {
+  function authorized(user, action, context) {
+      console.log('--------------------------------');
+      console.log(user.roles);
+      console.log(user.permissions);
+      console.log(context.req.params);
+      console.log('--------------------------------');
     for (var i = 0; i < user.permissions.length; ++i) {
       var permission = user.permissions[i];
       if (action.resource === permission.resource
 	  && permission.operations.indexOf(action.operation) >= 0) {
-          return !permission.check || permission.check(user, action);
+          return !permission.check || permission.check(user, action, context);
       }
     }
     return false;
   };
 
-  HttpCall.prototype.isAuthorized = function (action) {
+    HttpCall.prototype.isAuthorized = function (action, context) {
     var self = this;
     var user = self.req.session.user;
-    var result = user && user.permissions && authorized(user, action);
+    var result = user && user.permissions && authorized(user, action, context);
+
     if (!result) {
       console.log('authorization failed: user=', user, ', action=', action);
     }
@@ -103,7 +109,7 @@ module.exports = function(server, api_prefix) {
   function httpHandler(handler) {
     return function (req, res) {
       var call = new HttpCall(req, res);
-      if (handler.action && !call.isAuthorized(handler.action)) {
+      if (handler.action && !call.isAuthorized(handler.action, call)) {
         call.res.status(401).json({});
       } else {
         var promise = handler.fn(call);
@@ -141,7 +147,7 @@ module.exports = function(server, api_prefix) {
     handlePath({
       get: keyPath,
       fn: function (call) { return entity.get(call.param('key'), call.flags('options')); },
-      action: {resource: entity.name, operation: 'read'}
+        action: {resource: entity.name, operation: 'read'}
     });
     handlePath({
       get: basePath,

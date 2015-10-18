@@ -16,8 +16,13 @@ var roles = {
     permissions: [
         {resource: "items", operations: ['read']},
         {resource: "borrowers", operations: ['read'],
-         check: function(user, action) {
-             return true;
+         check: function(user, action, context) {
+             console.log('CHECK');
+             return (
+                 user.borrowernumber &&
+                 context && context.req && context.req.params &&
+                 user.borrowernumber == context.req.params.get('key')
+             );
          }}
     ]
   },
