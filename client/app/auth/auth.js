@@ -68,7 +68,7 @@ angular.module('lbAuth', [])
       if (action.resource === permission.resource
 	  && permission.operations.indexOf(action.operation) >= 0) {
 	return true;
-      }      
+      }
     }
     return false;
   };

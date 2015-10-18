@@ -2,7 +2,7 @@
  * Service providing access to the library REST API.
  */
 angular.module("library")
-.factory("library", function ($http) {
+    .factory("library", function ($http, Auth) {
   var api_prefix = '/api';
 
   // returned service object
@@ -88,7 +88,10 @@ angular.module("library")
   library.returnedItems = function () { return returnedItems; };
 
   library.getBorrower = function (borrowerNumber, params) {
-    return httpGet('/borrowers/' + borrowerNumber, params);
+      if (!!borrowerNumber) {
+          borrowerNumber = '731';
+      }
+      return httpGet('/borrowers/' + borrowerNumber, params);
   };
 
   library.createBorrower = function (borrower) {
