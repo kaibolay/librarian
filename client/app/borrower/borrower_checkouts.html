@@ -22,7 +22,9 @@
       <ng-pluralize count="ctrl.borrower.items.length"
         when="{'one': 'item checked out', 'other': 'items checked out'}">
       </ng-pluralize>
-      <button class="btn btn-success renew-all-button" ng-click="ctrl.renewAll()">
+      <button class="btn btn-success renew-all-button"
+              ng-show="authorized('borrowers', 'renewAllItems')"
+              ng-click="ctrl.renewAll()">
         Renew All
       </button>
     </h4>
@@ -58,8 +60,8 @@
             <span class="accesskey">L</span>ate Fee Due
           </a>
         </th>
-        <th></th>
-        <th></th>
+        <th ng-show="authorized('borrowers', 'edit')"></th>
+        <th ng-show="authorized('borrowers', 'edit')"></th>
       </thead>
       <tbody>
         <tr ng-repeat="item in ctrl.borrower.items | orderBy:ctrl.sortKey">
@@ -79,12 +81,12 @@
               {{item.fine_due - item.fine_paid | currency}}
             </span>
           </td>
-          <td>
+          <td ng-show="authorized('items', 'renew')">
             <a class="btn btn-sm btn-success" ng-click="ctrl.renewItem(item)">
               Renew
             </a>
           </td>
-          <td>
+          <td ng-show="authorized('items', 'checkin')">
             <a class="btn btn-sm btn-warning" ng-click="ctrl.returnItem(item)">
               Return
             </a>
