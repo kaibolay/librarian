@@ -2,7 +2,7 @@
  * Simple module simplifying the handling of promises in express
  * HTTP handlers.
  */
-module.exports = function(server, api_prefix) {
+module.exports = function(server, api_prefix, auth) {
 
   /**
    * Class wrapping a node HTTP request and response and adding some
@@ -20,7 +20,7 @@ module.exports = function(server, api_prefix) {
     var value = this.req.param(name);
     converter = converter || String;
     return value === undefined ? defaultValue : converter(value);
-  }
+  };
 
   /**
    * Returns the named request parameters as an object.
@@ -72,30 +72,10 @@ module.exports = function(server, api_prefix) {
       });
   };
 
-  /**
-   * Returns true if the action is authorized by the permissions.
-   */
-  function authorized(user, action, context) {
-      console.log('--------------------------------');
-      console.log(user.roles);
-      console.log(user.permissions);
-      console.log(context.req.params);
-      console.log('--------------------------------');
-    for (var i = 0; i < user.permissions.length; ++i) {
-      var permission = user.permissions[i];
-      if (action.resource === permission.resource
-	  && permission.operations.indexOf(action.operation) >= 0) {
-          return !permission.check || permission.check(user, action, context);
-      }
-    }
-    return false;
-  };
-
-    HttpCall.prototype.isAuthorized = function (action, context) {
+    HttpCall.prototype.isAuthorized = function (action) {
     var self = this;
     var user = self.req.session.user;
-    var result = user && user.permissions && authorized(user, action, context);
-
+    var result = user && user.permissions && auth.authorized(user, action);
     if (!result) {
       console.log('authorization failed: user=', user, ', action=', action);
     }

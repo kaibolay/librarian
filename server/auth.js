@@ -154,9 +154,24 @@ module.exports = function (db) {
     return Q(true);
   }
 
+  /**
+   * Returns true if the action is authorized by the permissions.
+   */
+  function authorized(user, action) {
+    for (var i = 0; i < user.permissions.length; ++i) {
+      var permission = user.permissions[i];
+      if (action.resource === permission.resource
+	  && permission.operations.indexOf(action.operation) >= 0) {
+          return !permission.check || check_functions[permission.check](user, action);
+      }
+    }
+    return false;
+  };
+
   return {
     authenticate: authenticate,
     logout: logout,
-    hashPassword: saltedHash
+    hashPassword: saltedHash,
+    authorized: authorized
   };
 };
