@@ -89,7 +89,8 @@ module.exports = function(server, api_prefix, auth) {
   function httpHandler(handler) {
     return function (req, res) {
       var call = new HttpCall(req, res);
-      if (handler.action && !call.isAuthorized(handler.action, call)) {
+      var action = typeof(handler.action) == 'function' ? handler.action(call) : handler.action;
+      if (action && !call.isAuthorized(action)) {
         call.res.status(401).json({});
       } else {
         var promise = handler.fn(call);
@@ -127,29 +128,39 @@ module.exports = function(server, api_prefix, auth) {
     handlePath({
       get: keyPath,
       fn: function (call) { return entity.get(call.param('key'), call.flags('options')); },
-        action: {resource: entity.name, operation: 'read'}
+      action: function (call) {
+        return {resource: entity.name, operation: 'read', key: call.param('key')};
+      }
     });
     handlePath({
       get: basePath,
       fn: function (call) { return entity.read(call.req.query, call.limit()); },
-      action: {resource: entity.name, operation: 'read'}
+      action: function (call) {
+        return {resource: entity.name, operation: 'read', key: call.param('key')};
+      }
     });
     handlePath({
       put: basePath,
       fn: function (call) { return entity.update(call.req.body); },
-      action: {resource: entity.name, operation: 'update'}
+      action: function (call) {
+        return {resource: entity.name, operation: 'update', key: call.param('key')};
+      }
     });
     handlePath({
       post: basePath,
       fn: function (call) { return entity.create(call.req.body); },
-      action: {resource: entity.name, operation: 'create'}
+      action: function (call) {
+        return {resource: entity.name, operation: 'create', key: call.param('key')};
+      }
     });
     if (methods) {
       methods.forEach(function (method) {
         handlePath({
           post: keyPath + '/' + method,
           fn: function (call) { return entity[method](call.param('key'), call.req.body); },
-          action: {resource: entity.name, operation: method}
+          action: function (call) {
+            return {resource: entity.name, operation: method, key: call.param('key')};
+          }
         });
       });
     }

@@ -8,6 +8,15 @@ const config = require('config'),
 
 var crud = ['create', 'read', 'update', 'delete'];
 
+var check_functions = {
+    'self': function(user, action) {
+        return (
+            user.borrowernumber &&
+                action.key && action.key == user.borrowernumber
+        );
+    }
+};
+
 var roles = {
   anonymous: {
     permissions: []
@@ -15,15 +24,7 @@ var roles = {
   borrower: {
     permissions: [
         {resource: "items", operations: ['read']},
-        {resource: "borrowers", operations: ['read'],
-         check: function(user, action, context) {
-             console.log('CHECK');
-             return (
-                 user.borrowernumber &&
-                 context && context.req && context.req.params &&
-                 user.borrowernumber == context.req.params.get('key')
-             );
-         }}
+        {resource: "borrowers", operations: ['read'], check: 'self'}
     ]
   },
   clerk: {

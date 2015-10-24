@@ -21,7 +21,7 @@ const config = require('config'),
       library = require('./library').create(db),
       auth = require('./auth')(db),
       server = express(),
-      httpcall = require('./httpcall')(server, api_prefix);
+      httpcall = require('./httpcall')(server, api_prefix, auth);
 
 server.use(logger('combined', {
   stream: fs.createWriteStream(__dirname + '/requests.log', {flags: 'a'})}));
