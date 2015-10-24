@@ -1,5 +1,11 @@
 <div class="jumbotron" ng-controller="dashboardCtrl as ctrl">
   <h3>Welcome to the GSSB Library!</h3>
+    <a href="#/borrower/{{appCtrl.getUser().borrowernumber}}"
+       class="dashboard-button btn btn-primary btn-lg"
+       ng-show="authorized('borrowers', 'read', 'self')"
+       role="button">
+      My Items
+    </a>
     <a href="#/returns" class="dashboard-button btn btn-primary btn-lg"
        ng-show="authorized('items', 'checkin')"
        role="button">

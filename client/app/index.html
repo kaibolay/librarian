@@ -59,6 +59,12 @@
               <span class="accesskey">B</span>orrowers
             </a>
           </li>
+          <li role="presentation" ng-class="appCtrl.navClass('borrowers')"
+              ng-show="authorized('borrowers', 'read', 'self')">
+            <a href="#/borrower/{{appCtrl.getUser().borrowernumber}}" accesskey=",">
+              <span class="accesskey">M</span>y Items
+            </a>
+          </li>
           <li role="presentation" ng-class="appCtrl.navClass('items')"
               ng-show="authorized('items', 'read')">
             <a href="#/items" accesskey="i">
