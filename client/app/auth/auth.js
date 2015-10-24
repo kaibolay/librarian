@@ -66,8 +66,9 @@ angular.module('lbAuth', [])
     for (var i = 0; i < permissions.length; ++i) {
       var permission = permissions[i];
       if (action.resource === permission.resource
-	  && permission.operations.indexOf(action.operation) >= 0) {
-	return true;
+	  && permission.operations.indexOf(action.operation) >= 0
+          && permission.check == action.check) {
+	  return true;
       }
     }
     return false;

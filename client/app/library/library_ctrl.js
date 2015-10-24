@@ -87,8 +87,9 @@ angular.module('library')
    * Returns true if the current user is authorized to perform the
    * operation on the resource.
    */
-  $scope.authorized = function (resource, operation) {
-    return Auth.authorized({resource: resource, operation: operation});
+  $scope.authorized = function (resource, operation, check) {
+    return Auth.authorized(
+      {resource: resource, operation: operation, check: check});
   };
 
   self.logout = function () {
