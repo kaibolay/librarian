@@ -29,8 +29,7 @@ angular.module('library', [
       authAction: {resource: 'borrowers', operation: 'create'}
     })
     .when('/borrower/:number', {
-      templateUrl: '/borrower/borrower.html',
-      authAction: {resource: 'borrowers', operation: 'read'}
+      templateUrl: '/borrower/borrower.html'
     })
     .when('/items', {
       templateUrl: '/item/items.html'
