@@ -88,9 +88,6 @@ angular.module("library")
   library.returnedItems = function () { return returnedItems; };
 
   library.getBorrower = function (borrowerNumber, params) {
-      if (!!borrowerNumber) {
-          borrowerNumber = '731';
-      }
       return httpGet('/borrowers/' + borrowerNumber, params);
   };
 
