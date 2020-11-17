@@ -220,8 +220,9 @@ config['clients'].forEach(function (clientConfig) {
 
 
 // Start server if it is configured.
-const port = config.get('server')?.port;
-if (port) {
+const api_server = config.get('server');
+if (api_server && api_server.port) {
+  const port = api_server.port;
   server.listen(port, function () {
     console.log("library server is listening on port", port);
   });
