@@ -72,7 +72,7 @@ function Entity(db, config) {
   this.columns = [];
 
   function addColumn(column) {
-    const col = typeof(column) === 'object' ? column : {name: column};
+    const col = typeof (column) === 'object' ? column : { name: column };
     self.columns.push(col);
     self.columnsByName[col.name] = col;
   }
@@ -116,16 +116,16 @@ function createFromDb(entity) {
     }
     if (tableOnly) {
       const result = {};
-      for (const {name, domain} of entity.columns) {
-        const fromDb = domain?.fromDb;
+      for (const { name, domain } of entity.columns) {
+        const fromDb = domain.fromDb;
         const value = row[name];
         result[name] = fromDb ? fromDb(value) : value;
       }
       return result;
     } else {
-      const result = {...row};
-      for (const {name, domain} of entity.columns) {
-        const fromDb = domain?.fromDb;
+      const result = { ...row };
+      for (const { name, domain } of entity.columns) {
+        const fromDb = domain.fromDb;
         if (fromDb) {
           result[name] = fromDb(result[name]);
         }
@@ -145,9 +145,9 @@ function createToDb(entity) {
   if (toDbColumns.length === 0) {
     return identity;
   }
-  return function(data) {
+  return function (data) {
     if (data !== undefined) {
-      toDbColumns.forEach(function(column) {
+      toDbColumns.forEach(function (column) {
         data[column.name] = column.domain.toDb(data[column.name]);
       });
     }
@@ -158,7 +158,7 @@ function createToDb(entity) {
 /**
  * Returns the promise of saving a new object in the table.
  */
-Entity.prototype.create = function(obj) {
+Entity.prototype.create = function (obj) {
   const self = this;
   const dbObj = self.toDb(obj);
   const columns = [];
@@ -194,36 +194,36 @@ Entity.prototype.create = function(obj) {
  * @param field Name of the field (or, equivalently, database table column) to compare
  * @param value Value to compare to or object with 'value' and 'op' properties
  */
-Entity.prototype.sqlTerm = function(field, value) {
+Entity.prototype.sqlTerm = function (field, value) {
   const column = this.columnsByName[field];
   if (column === undefined) {
     return undefined;
   }
   const op = (column && column.queryOp) || 'equals';
 
-  if (typeof(value) === 'object') {
+  if (typeof (value) === 'object') {
     op = value.op;
     value = value.value;
   }
 
   if (op === 'contains') {
-    return {field: field, op: 'like', value: '%' + value + '%'};
+    return { field: field, op: 'like', value: '%' + value + '%' };
   } else if (op === 'startswith') {
-    return {field: field, op: 'like', value: value + '%'};
+    return { field: field, op: 'like', value: value + '%' };
   } else if (op === 'endswith') {
-    return {field: field, op: 'like', value: '%' + value};
+    return { field: field, op: 'like', value: '%' + value };
   } else {
-    return {field: field, op: '=', value: value};
+    return { field: field, op: '=', value: value };
   }
 };
 
 /**
  * Translates a query to an array of terms.
  */
-Entity.prototype.sqlTerms = function(query) {
+Entity.prototype.sqlTerms = function (query) {
   const terms = [];
   if (query !== undefined) {
-    if (typeof(query) !== 'object') {
+    if (typeof (query) !== 'object') {
       const value = query;
       query = {};
       query[this.naturalKey || 'id'] = value;
@@ -241,7 +241,7 @@ Entity.prototype.sqlTerms = function(query) {
 /**
  * Constructs the where clause and parameter array for the query.
  */
-Entity.prototype.sqlWhere = function(query, op, prefix) {
+Entity.prototype.sqlWhere = function (query, op, prefix) {
   op = op === undefined ? 'and' : op;
   prefix = prefix === undefined ? '' : prefix;
   const terms = this.sqlTerms(query);
@@ -255,7 +255,7 @@ Entity.prototype.sqlWhere = function(query, op, prefix) {
       params.push(clause.value);
     });
   }
-  return {sql: sql, params: params};
+  return { sql: sql, params: params };
 };
 
 /**
@@ -290,12 +290,12 @@ Entity.prototype.read = function (query, op, limit) {
   const whereClause = this.sqlWhere(query, op);
   const sql = 'select * from ' + this.table + whereClause.sql;
   return this.db.selectRows(sql, whereClause.params, limit, query._order).then(
-      function(data) {
-        if (data.rows) {
-          data.rows = data.rows.map(self.fromDb);
-        }
-        return data;
-      });
+    function (data) {
+      if (data.rows) {
+        data.rows = data.rows.map(self.fromDb);
+      }
+      return data;
+    });
 };
 
 /**
@@ -375,7 +375,7 @@ entity.domains = {
   'Boolean': {
     name: 'Boolean',
     type: 'boolean',
-    fromDb: function(dbValue) {
+    fromDb: function (dbValue) {
       return dbValue === 1;
     }
   },
