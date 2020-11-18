@@ -218,7 +218,6 @@ config['clients'].forEach(function (clientConfig) {
   }
 });
 
-
 // Start server if it is configured.
 const api_server = config.get('server');
 if (api_server && api_server.port) {
