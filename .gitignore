@@ -26,3 +26,4 @@ firebase-debug.log
 ui-debug.log
 
 firebase/functions/config/default.json
+**/.DS_Store
