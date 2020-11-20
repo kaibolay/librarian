@@ -9,7 +9,7 @@ cd ${DIR}/functions
 npm install
 
 export NODE_CONFIG_DIR=${DIR}/functions/config
-export NODE_ENV=sqlproxy
+export NODE_ENV=local
 
 echo "Using ${NODE_CONFIG_DIR}/${NODE_ENV}.json"
 

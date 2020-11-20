@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const config = require('config'),
-      crypto = require('crypto'),
-      mysql = require('mysql'),
-      mysqlq = require('../lib/mysqlq'),
-      db = mysqlq(mysql.createPool(config.get('db')));
+const config = require('./firebaseConfig'),
+  crypto = require('crypto'),
+  mysql = require('mysql'),
+  mysqlq = require('../lib/mysqlq'),
+  db = mysqlq(mysql.createPool(config.db));
 
 function hash(s) {
   return crypto.createHash('sha256').update(s).digest('hex');
