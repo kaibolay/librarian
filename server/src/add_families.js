@@ -12,19 +12,19 @@
  * in the CSV file.
  */
 const fs = require('fs'),
-      util = require('util'),
-      // We need sprintf for %05d which is not supported by util.format.
-      sprintf = require('sprintf-js').sprintf,
-      stream = require('stream'),
-      toArray = require('stream-to-array'),
-      Transform = stream.Transform,
-      csv = require('csv'),
+  util = require('util'),
+  // We need sprintf for %05d which is not supported by util.format.
+  sprintf = require('sprintf-js').sprintf,
+  stream = require('stream'),
+  toArray = require('stream-to-array'),
+  Transform = stream.Transform,
+  csv = require('csv'),
 
-      // modules for the database and library
-      mysqlq = require('../lib/mysqlq'),
-      config = require('config'),
-      db = mysqlq(require('mysql').createPool(config.get('db'))),
-      library = require('./library').create(db);
+  // modules for the database and library
+  mysqlq = require('../lib/mysqlq'),
+  config = require('./firebaseConfig'),
+  db = mysqlq(require('mysql').createPool(config.get('db'))),
+  library = require('./library').create(db);
 
 /**
  * Transform that drops the first n objects of the stream (like Scala's drop).
@@ -33,7 +33,7 @@ const fs = require('fs'),
  * find it, and this may at least serve as a small example of a Transform.
  */
 function Drop(n) {
-  Transform.call(this, {objectMode: true});
+  Transform.call(this, { objectMode: true });
   this._n = n;
   this._index = 0;
 }
@@ -80,9 +80,9 @@ function csvFamilyToBorrower(row) {
 function parseFamiliesCsvFile(filename) {
   console.log('parsing file: ', filename);
   return fs.createReadStream(filename)
-      .pipe(csv.parse({}))
-      .pipe(new Drop(1)) // skip header row
-      .pipe(csv.transform(csvFamilyToBorrower));
+    .pipe(csv.parse({}))
+    .pipe(new Drop(1)) // skip header row
+    .pipe(csv.transform(csvFamilyToBorrower));
 }
 
 /**
@@ -106,7 +106,7 @@ function mergeFamilies(borrowers) {
  */
 function nextBorrowerNumber() {
   return db.selectRow(
-      'select max(borrowernumber) as max_borrowernumber from borrowers')
+    'select max(borrowernumber) as max_borrowernumber from borrowers')
     .then(function (data) {
       return data.max_borrowernumber + 1;
     });
@@ -168,7 +168,7 @@ function parseAndInsertBorrowers(filename, borrowernumber, ref) {
  * the file.
  */
 function insertBorrowers(filename) {
-  var ref = refcount(function() { db.pool.end(); });
+  var ref = refcount(function () { db.pool.end(); });
   nextBorrowerNumber()
     .then(function (borrowernumber) {
       parseAndInsertBorrowers(filename, borrowernumber, ref);

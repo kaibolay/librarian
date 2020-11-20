@@ -21,3 +21,5 @@ client2/.public.git-rev
 client2/.volunteers.git-rev
 
 provision/grains
+**/.DS_Store
+.runtimeconfig.json

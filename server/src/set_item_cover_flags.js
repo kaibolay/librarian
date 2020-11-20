@@ -5,12 +5,12 @@
  * in the node config).
  */
 const fs = require('fs'),
-      path = require('path'),
-      config = require('config'),
-      crypto = require('crypto'),
-      mysql = require('mysql'),
-      mysqlq = require('../lib/mysqlq'),
-      db = mysqlq(mysql.createPool(config.get('db')));
+  path = require('path'),
+  config = require('./firebaseConfig'),
+  crypto = require('crypto'),
+  mysql = require('mysql'),
+  mysqlq = require('../lib/mysqlq'),
+  db = mysqlq(mysql.createPool(config.db));
 
 var img_root_path = config['resources']['covers'];
 if (img_root_path[0] != '/') {

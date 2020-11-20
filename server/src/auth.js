@@ -1,10 +1,10 @@
 /**
  * Simple authentication and authorization module.
  */
-const config = require('config'),
-      crypto = require('crypto'),
-      http = require('request-promise'),
-      Q = require('q');
+const config = require('./firebaseConfig'),
+  crypto = require('crypto'),
+  http = require('request-promise'),
+  Q = require('q');
 
 const crud = ['create', 'read', 'update', 'delete'];
 
@@ -129,7 +129,7 @@ module.exports = function (db) {
    */
   function authenticateInternal(login) {
     return db.selectRow('select * from users where username = ?',
-                        login.username, true)
+      login.username, true)
       .then(function (user) {
         if (!user) {
           return {
@@ -167,7 +167,7 @@ module.exports = function (db) {
       method: 'POST',
       uri: config['sycamore-auth']['url'],
       form: {
-        'entered_schid' : config['sycamore-auth']['school-id'],
+        'entered_schid': config['sycamore-auth']['school-id'],
         'entered_login': login.username,
         'entered_password': login.password
       },
@@ -184,7 +184,7 @@ module.exports = function (db) {
         }
         if (body.indexOf(config['sycamore-auth']['success-text']) >= 0) {
           return db.selectRow('select * from borrowers where sycamoreid = ?', login.username, true)
-            .then(function(borrower) {
+            .then(function (borrower) {
               return {
                 authenticated: true,
                 user: {
